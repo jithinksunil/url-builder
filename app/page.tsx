@@ -1,65 +1,118 @@
-import Image from "next/image";
+'use client';
+import Image from 'next/image';
+import { Form, FormProvider, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { TextInput } from './components/TextInput';
+import { useEffect, useRef, useState } from 'react';
+import { serialize } from './helpers/helpers';
+import toast, { Toaster } from 'react-hot-toast';
+const schema = yup.object().shape({
+  eventBaseUrl: yup.string().required('Please enter event base url').defined(),
+  leadId: yup.string(),
+  generalPassId: yup.string(),
+  selectedPassId: yup.string(),
+  activityIdOne: yup.string(),
+  activityIdTwo: yup.string(),
+});
 
+const defaultValues = {
+  eventBaseUrl: 'https://app.peakst8.club/event/bismuth-cull',
+  leadId: '',
+  generalPassId: '4001c046-e99b-4f59-bae1-f8515272abc0',
+  selectedPassId: '958d4636-b2d3-4ce1-b4b5-2bbe6982fd0c',
+  activityIdOne: '',
+  activityIdTwo: '',
+};
 export default function Home() {
+  const form = useForm({ resolver: yupResolver(schema), defaultValues });
+  const [fullUrl, setFullUrl] = useState('');
+  const handleSubmit = (formData: typeof defaultValues) => {
+    const parsedObject = encodeURIComponent(
+      JSON.stringify({
+        nonConflictingActivityIds:
+          formData.activityIdOne && formData.activityIdTwo
+            ? [formData.activityIdOne, formData.activityIdTwo]
+            : formData.activityIdOne
+            ? [formData.activityIdOne]
+            : formData.activityIdTwo
+            ? [formData.activityIdTwo]
+            : [],
+        conflictingActivityIds: [],
+        selectedPass: formData.selectedPassId,
+        generalPass: formData.generalPassId,
+      })
+    );
+    setFullUrl(
+      `${formData.eventBaseUrl}?${serialize({
+        id: formData.leadId,
+        parsedObject: formData.selectedPassId ? parsedObject : undefined,
+      })}`
+    );
+  };
+  const copy = async () => {
+    await navigator.clipboard.writeText(fullUrl);
+    toast.success('Copied to clipboard');
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className='h-screen flex justify-center items-center flex-col'>
+      <FormProvider {...form}>
+        <Form
+          {...form}
+          onSubmit={(handlerData) =>
+            handleSubmit(handlerData.data as typeof defaultValues)
+          }
+          className='flex flex-col gap-4 items-center'
+        >
+          {/* <TextInput
+            name='eventBaseUrl'
+            placeholder='https://app.peakst8.club/event/{{eventId}}'
+            label='Event Base URL'
+          /> */}
+          <TextInput name='leadId' placeholder='saasbhoomi' label='Lead ID' />
+          <TextInput
+            name='selectedPassId'
+            placeholder='Category UUID'
+            label='Preselected Pass ID'
+          />
+          <TextInput
+            name='activityIdOne'
+            placeholder='Activity UUID'
+            label='Preselected Activity ID 1'
+          />
+          <TextInput
+            name='activityIdTwo'
+            placeholder='Activity UUID'
+            label='Preselected Activity ID 2'
+          />
+          {/* <TextInput
+            name='generalPassId'
+            placeholder='Category UUID'
+            label='General Pass ID'
+          /> */}
+
+          <button className='bg-gray-800 w-[75px] rounded-md py-1 hover:cursor-pointer active:scale-95'>
+            Submit
+          </button>
+        </Form>
+      </FormProvider>
+      {fullUrl && (
+        <>
+          <p className=' max-w-[700px] wrap-break-word text-center '>
+            {fullUrl}
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <p
+            className='hover:cursor-pointer bg-blue-500 px-2 rounded-md active:scale-95'
+            onClick={() => {
+              copy();
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            Copy
+          </p>
+        </>
+      )}
+      <Toaster />
     </div>
   );
 }
