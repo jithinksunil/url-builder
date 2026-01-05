@@ -1,19 +1,23 @@
 'use client';
-import Image from 'next/image';
 import { Form, FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { TextInput } from './components/TextInput';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { serialize } from './helpers/helpers';
 import toast, { Toaster } from 'react-hot-toast';
 const schema = yup.object().shape({
   eventBaseUrl: yup.string().required('Please enter event base url').defined(),
   leadId: yup.string(),
   generalPassId: yup.string(),
-  selectedPassId: yup.string(),
+  selectedPassId: yup.lazy((_, ctx) => {
+    if (ctx.parent.requirePreSelectedPass)
+      return yup.string().required('Please select a pass');
+    return yup.string();
+  }),
   activityIdOne: yup.string(),
   activityIdTwo: yup.string(),
+  requirePreSelectedPass: yup.boolean().defined(),
 });
 
 const defaultValues = {
@@ -23,6 +27,7 @@ const defaultValues = {
   selectedPassId: '958d4636-b2d3-4ce1-b4b5-2bbe6982fd0c',
   activityIdOne: '',
   activityIdTwo: '',
+  requirePreSelectedPass: false,
 };
 export default function Home() {
   const form = useForm({ resolver: yupResolver(schema), defaultValues });
@@ -46,7 +51,7 @@ export default function Home() {
     setFullUrl(
       `${formData.eventBaseUrl}?${serialize({
         id: formData.leadId,
-        parsedObject: formData.selectedPassId ? parsedObject : undefined,
+        parsedObject: formData.requirePreSelectedPass ? parsedObject : undefined,
       })}`
     );
   };
@@ -54,6 +59,7 @@ export default function Home() {
     await navigator.clipboard.writeText(fullUrl);
     toast.success('Copied to clipboard');
   };
+  const requirePreSelectedPass = form.watch('requirePreSelectedPass');
 
   return (
     <div className='h-screen flex justify-center items-center flex-col'>
@@ -71,26 +77,37 @@ export default function Home() {
             label='Event Base URL'
           />
           <TextInput name='leadId' placeholder='saasbhoomi' label='Lead ID' />
-          <TextInput
-            name='selectedPassId'
-            placeholder='Category UUID'
-            label='Preselected Pass ID'
-          />
-          <TextInput
-            name='activityIdOne'
-            placeholder='Activity UUID'
-            label='Preselected Activity ID 1'
-          />
-          <TextInput
-            name='activityIdTwo'
-            placeholder='Activity UUID'
-            label='Preselected Activity ID 2'
-          />
-          <TextInput
-            name='generalPassId'
-            placeholder='Category UUID'
-            label='General Pass ID'
-          />
+          <div className='flex gap-2 w-full'>
+            <input
+              type='checkbox'
+              {...form.register('requirePreSelectedPass')}
+            />
+            Require Preselected Pass
+          </div>
+          {requirePreSelectedPass && (
+            <>
+              <TextInput
+                name='selectedPassId'
+                placeholder='Category UUID'
+                label='Preselected Pass ID'
+              />
+              <TextInput
+                name='activityIdOne'
+                placeholder='Activity UUID'
+                label='Preselected Activity ID 1'
+              />
+              <TextInput
+                name='activityIdTwo'
+                placeholder='Activity UUID'
+                label='Preselected Activity ID 2'
+              />
+              <TextInput
+                name='generalPassId'
+                placeholder='Category UUID'
+                label='General Pass ID'
+              />
+            </>
+          )}
 
           <button className='bg-gray-800 w-[75px] rounded-md py-1 hover:cursor-pointer active:scale-95'>
             Submit
