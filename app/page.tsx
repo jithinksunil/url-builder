@@ -126,9 +126,13 @@ export default function Home() {
       </FormProvider>
       {fullUrl && (
         <>
-          <p className=' max-w-[700px] wrap-break-word text-center '>
+          <a
+            href={fullUrl}
+            target='_blank'
+            className=' max-w-[700px] wrap-break-word text-center hover:text-blue-500 pb-5 pt-5'
+          >
             {fullUrl}
-          </p>
+          </a>
           <p
             className='hover:cursor-pointer bg-blue-500 px-2 rounded-md active:scale-95'
             onClick={() => {
