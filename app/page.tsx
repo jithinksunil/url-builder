@@ -86,11 +86,11 @@ export default function Home() {
             placeholder='Activity UUID'
             label='Preselected Activity ID 2'
           />
-          {/* <TextInput
+          <TextInput
             name='generalPassId'
             placeholder='Category UUID'
             label='General Pass ID'
-          /> */}
+          />
 
           <button className='bg-gray-800 w-[75px] rounded-md py-1 hover:cursor-pointer active:scale-95'>
             Submit
