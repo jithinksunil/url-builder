@@ -87,13 +87,13 @@ export default function Home() {
             label='Event Base URL'
           />
           <TextInput name='leadId' placeholder='saasbhoomi' label='Lead ID' />
-          <div className='flex gap-2 w-full'>
+          <label className='flex gap-2 w-full hover:cursor-pointer'>
             <input
               type='checkbox'
               {...form.register('requirePreSelectedPass')}
             />
             Require Preselected Pass
-          </div>
+          </label>
           {requirePreSelectedPass && (
             <>
               <TextInput
