@@ -9,13 +9,21 @@ import toast, { Toaster } from 'react-hot-toast';
 const schema = yup.object().shape({
   eventBaseUrl: yup.string().required('Please enter event base url').defined(),
   leadId: yup.string(),
-  generalPassId: yup.string(),
+  generalPassId: yup.lazy((_, ctx) => {
+    if (ctx.parent.requirePreSelectedPass)
+      return yup.string().required('Please select a pass');
+    return yup.string();
+  }),
   selectedPassId: yup.lazy((_, ctx) => {
     if (ctx.parent.requirePreSelectedPass)
       return yup.string().required('Please select a pass');
     return yup.string();
   }),
-  activityIdOne: yup.string(),
+  activityIdOne: yup.lazy((_, ctx) => {
+    if (ctx.parent.requirePreSelectedPass)
+      return yup.string().required('Please add an activity');
+    return yup.string();
+  }),
   activityIdTwo: yup.string(),
   requirePreSelectedPass: yup.boolean().defined(),
 });
@@ -51,7 +59,9 @@ export default function Home() {
     setFullUrl(
       `${formData.eventBaseUrl}?${serialize({
         id: formData.leadId,
-        parsedObject: formData.requirePreSelectedPass ? parsedObject : undefined,
+        parsedObject: formData.requirePreSelectedPass
+          ? parsedObject
+          : undefined,
       })}`
     );
   };
