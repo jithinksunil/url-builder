@@ -65,11 +65,11 @@ export default function Home() {
           }
           className='flex flex-col gap-4 items-center'
         >
-          {/* <TextInput
+          <TextInput
             name='eventBaseUrl'
             placeholder='https://app.peakst8.club/event/{{eventId}}'
             label='Event Base URL'
-          /> */}
+          />
           <TextInput name='leadId' placeholder='saasbhoomi' label='Lead ID' />
           <TextInput
             name='selectedPassId'
