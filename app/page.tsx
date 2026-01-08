@@ -26,6 +26,7 @@ const schema = yup.object().shape({
   }),
   activityIdTwo: yup.string(),
   requirePreSelectedPass: yup.boolean().defined(),
+  restrictSelectedPassWithSelectedActivities: yup.boolean().defined(),
 });
 
 const defaultValues = {
@@ -36,6 +37,7 @@ const defaultValues = {
   activityIdOne: '',
   activityIdTwo: '',
   requirePreSelectedPass: false,
+  restrictSelectedPassWithSelectedActivities: false,
 };
 export default function Home() {
   const form = useForm({ resolver: yupResolver(schema), defaultValues });
@@ -52,6 +54,9 @@ export default function Home() {
             ? [formData.activityIdTwo]
             : [],
         conflictingActivityIds: [],
+        restrictedPassId: formData.restrictSelectedPassWithSelectedActivities
+          ? formData.selectedPassId
+          : undefined,
         selectedPass: formData.selectedPassId,
         generalPass: formData.generalPassId,
       })
@@ -116,6 +121,15 @@ export default function Home() {
                 placeholder='Category UUID'
                 label='General Pass ID'
               />
+              <label className='flex gap-2 w-full hover:cursor-pointer'>
+                <input
+                  type='checkbox'
+                  {...form.register(
+                    'restrictSelectedPassWithSelectedActivities'
+                  )}
+                />
+                Restrict Selected Pass and selected activities
+              </label>
             </>
           )}
 
