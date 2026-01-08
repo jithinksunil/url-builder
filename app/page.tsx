@@ -74,7 +74,7 @@ export default function Home() {
     await navigator.clipboard.writeText(fullUrl);
     toast.success('Copied to clipboard');
   };
-  const requirePreSelectedPass = form.watch('requirePreSelectedPass');
+  const formData = form.watch();
 
   return (
     <div className='h-screen flex justify-center items-center flex-col'>
@@ -99,7 +99,7 @@ export default function Home() {
             />
             Require Preselected Pass
           </label>
-          {requirePreSelectedPass && (
+          {formData.requirePreSelectedPass && (
             <>
               <TextInput
                 name='selectedPassId'
@@ -116,11 +116,6 @@ export default function Home() {
                 placeholder='Activity UUID'
                 label='Preselected Activity ID 2'
               />
-              <TextInput
-                name='generalPassId'
-                placeholder='Category UUID'
-                label='General Pass ID'
-              />
               <label className='flex gap-2 w-full hover:cursor-pointer'>
                 <input
                   type='checkbox'
@@ -130,6 +125,13 @@ export default function Home() {
                 />
                 Restrict Selected Pass and selected activities
               </label>
+              {!formData.restrictSelectedPassWithSelectedActivities && (
+                <TextInput
+                  name='generalPassId'
+                  placeholder='Category UUID'
+                  label='General Pass ID'
+                />
+              )}
             </>
           )}
 
